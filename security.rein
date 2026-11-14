@@ -19,7 +19,8 @@ export default async function security(
   baseline. Read them with \`gh api orgs/${org}\`,
   \`gh api orgs/${org}/actions/permissions/workflow\` and
   \`gh api orgs/${org}/code-security/configurations/defaults\`. Change
-  nothing yet.
+  nothing yet. When a read fails for the \`admin:org\` scope, ask the user
+  to run \`gh auth refresh -h github.com -s admin:org\`, then read again.
   - \`default_repository_permission\`: \`read\`.
   - \`members_can_create_public_repositories\`: \`false\`.
   - Actions \`default_workflow_permissions\`: \`read\`, and
