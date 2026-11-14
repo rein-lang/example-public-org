@@ -1,6 +1,6 @@
-# rein-public-org
+# example-public-org
 
-A [Rein](https://rein-lang.com) program that sets up a public GitHub organization, step by step. Run it again at any time: each step checks first and changes only what is missing.
+An example [Rein](https://rein-lang.com) program. It sets up a public GitHub organization, step by step. Run it again at any time: each step checks first and changes only what is missing.
 
 1. **Owner check**: the agent must be an owner of the organization.
 2. **Profile** (`profile.rein`): display name, description and website, written from the organization's own repositories.
@@ -12,13 +12,13 @@ A [Rein](https://rein-lang.com) program that sets up a public GitHub organizatio
 ## Install
 
 ```sh
-rein install -g github:rein-lang/rein-public-org
+rein install -g github:rein-lang/example-public-org
 ```
 
 ## Use
 
 ```sh
-rein step public-org --input org=<organization login>
+rein step example-public-org --input org=<organization login>
 ```
 
 ## Develop
