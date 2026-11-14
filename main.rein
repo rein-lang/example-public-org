@@ -1,0 +1,53 @@
+interface Input {
+  /** The login of the GitHub organization, like `rein-lang`. */
+  org: string;
+  /** Run `gh api user/memberships/orgs/<org> --jq .role`. Is the agent an
+   * admin (owner) of the organization? */
+  owner: boolean;
+}
+
+/**
+ * Set up a public GitHub organization, step by step: the profile, the
+ * `.github` repository, the security settings, the public repositories,
+ * and the steps only the web UI can do.
+ */
+export default async function main({ org, owner }: Input) {
+  if (!owner) {
+    return askUser(question=`The agent is not an owner of ${org}, so it
+    cannot change its settings. Make it an owner, or tell me to stop.`);
+  }
+
+  /** Is the profile of the organization set? */
+  const profile: boolean = await @./profile(org=org);
+
+  if (!profile) {
+    return askUser(question=`The profile of ${org} is not set. Do I go on
+    with the next steps, or stop?`);
+  }
+
+  /** Does `<org>/.github` have the profile and all health files? */
+  const community: boolean = await @./community(org=org);
+
+  if (!community) {
+    return askUser(question=`The .github repository of ${org} is not
+    complete. Do I go on with the next steps, or stop?`);
+  }
+
+  /** Did the security step finish (applied, or declined by the user)? */
+  const security: boolean = await @./security(org=org);
+
+  if (!security) {
+    return askUser(question=`The security settings of ${org} did not
+    change. Do I go on with the public repositories, or stop?`);
+  }
+
+  /** Does every public repository meet the checklist? */
+  const repos: boolean = await @./repos(org=org);
+
+  if (!repos) {
+    return askUser(question=`Some public repositories of ${org} still have
+    gaps. Do I go on with the web UI steps, or stop?`);
+  }
+
+  return @./manual(org=org);
+}

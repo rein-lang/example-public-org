@@ -1,0 +1,49 @@
+interface Diff {
+  /** Each setting that differs from the baseline, as `name: now -> want`,
+   * separated by `;`, or `-` when none differs. */
+  changes: string;
+  /** Do all settings already match the baseline? */
+  none: boolean;
+}
+
+/**
+ * Bring the organization settings to a safe baseline for a public
+ * organization. The user approves the changes before they are applied.
+ */
+export default async function security(
+  /** The login of the GitHub organization. */
+  org: string,
+) {
+  /** The settings of the organization that differ from the baseline. */
+  const diff: Diff = await request(`Compare the settings of ${org} with this
+  baseline. Read them with \`gh api orgs/${org}\`,
+  \`gh api orgs/${org}/actions/permissions/workflow\` and
+  \`gh api orgs/${org}/code-security/configurations/defaults\`. Change
+  nothing yet.
+  - \`default_repository_permission\`: \`read\`.
+  - \`members_can_create_public_repositories\`: \`false\`.
+  - Actions \`default_workflow_permissions\`: \`read\`, and
+    \`can_approve_pull_request_reviews\`: \`false\`.
+  - A code security configuration with the dependency graph, Dependabot
+    alerts and security updates, secret scanning and push protection on is
+    the default for new public repositories (the GitHub recommended one
+    is fine).`);
+
+  if (diff.none) {
+    return `The settings of ${org} already match the baseline.`;
+  }
+
+  /** Did the user approve applying these changes, in chat? */
+  const approved: boolean = await request(`Show the user these setting
+  changes for ${org}: ${diff.changes}. Ask whether to apply them, and wait
+  for the answer.`);
+
+  if (!approved) {
+    return `The user declined the setting changes for ${org}. Change
+    nothing.`;
+  }
+
+  return `Apply these setting changes to ${org}: ${diff.changes}. Use
+  \`gh api -X PATCH\` or \`-X PUT\` on the endpoints you read. Change no
+  other setting. Then read the settings again and check that they match.`;
+}

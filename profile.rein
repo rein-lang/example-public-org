@@ -1,0 +1,48 @@
+interface Input {
+  /** The login of the GitHub organization. */
+  org: string;
+  /** Run `gh api orgs/<org> --jq '{name, description, blog}'`. Do the
+   * display name, the description and the website (`blog`) all have a
+   * value that matches what the organization makes? */
+  profile_ok: boolean;
+}
+
+interface Profile {
+  /** The display name to set. */
+  name: string;
+  /** The description to set: one sentence, 160 characters or fewer. */
+  description: string;
+  /** The website to set, as an `https://` link, or `-` when there is none. */
+  blog: string;
+  /** Did you find enough facts (repositories, website, README files) to
+   * write all three values? */
+  found: boolean;
+}
+
+/**
+ * Set the public profile of the organization: display name, description
+ * and website.
+ */
+export default async function profile({ org, profile_ok }: Input) {
+  if (profile_ok) {
+    return `The profile of ${org} is already set.`;
+  }
+
+  /** The profile values for the organization. */
+  const values: Profile = await request(`Read the public repositories of
+  ${org}, their README files and their websites. Write the display name, a
+  one-sentence description and the website of the organization from those
+  facts. Do not copy text from other organizations.`);
+
+  if (!values.found) {
+    return askUser(question=`I could not find enough facts to write the
+    profile of ${org}. What does the organization make, and what is its
+    website?`);
+  }
+
+  return `Set the profile of ${org}: run
+  \`gh api -X PATCH orgs/${org} -f name='${values.name}'
+  -f description='${values.description}' -f blog='${values.blog}'\`. Leave
+  out \`blog\` when it is \`-\`. Then run \`gh api orgs/${org}\` and check
+  that the values saved.`;
+}

@@ -1,0 +1,53 @@
+interface Input {
+  /** The login of the GitHub organization. */
+  org: string;
+  /** Does the public repository `<org>/.github` exist, and does it have
+   * `profile/README.md`, `CODE_OF_CONDUCT.md`, `CONTRIBUTING.md`,
+   * `SECURITY.md`, `SUPPORT.md`, `ISSUE_TEMPLATE/` (a bug report, a
+   * feature request and `config.yml`) and `pull_request_template.md`?
+   * Check with `gh api repos/<org>/.github/contents/<path>`. */
+  community_ok: boolean;
+  /** Run `gh api orgs/<org> --jq .email`. Does the organization have a
+   * public contact email? */
+  has_email: boolean;
+}
+
+/**
+ * Set up the `.github` repository of the organization: the profile README
+ * and the default community health files that every public repository
+ * without its own copy uses.
+ */
+export default function community({ org, community_ok, has_email }: Input) {
+  if (community_ok) {
+    return `The .github repository of ${org} is already complete.`;
+  }
+
+  if (!has_email) {
+    return askUser(question=`The code of conduct of ${org} needs a contact
+    for reports, and the organization has no public email. Which email do I
+    use? I can set it as the public email of ${org} too.`);
+  }
+
+  return `Set up \`${org}/.github\`. Create it as a public repository when
+  it is missing, with the description "Profile and default community
+  health files of ${org}." and an MIT license. Add only the missing files:
+  - \`profile/README.md\`: what the organization makes, its main
+    repositories with one line each, and how to take part. Use facts from
+    the repositories, not marketing claims.
+  - \`CODE_OF_CONDUCT.md\`: the Contributor Covenant 2.1, with the public
+    email of ${org} as the contact.
+  - \`CONTRIBUTING.md\`: how to report a bug, propose a change and open a
+    pull request; each repository README has its own setup steps.
+  - \`SECURITY.md\`: report a vulnerability privately through the "Report
+    a vulnerability" button of the repository (GitHub private
+    vulnerability reporting), never in a public issue.
+  - \`SUPPORT.md\`: where to ask questions: GitHub Discussions when on,
+    else issues.
+  - \`ISSUE_TEMPLATE/bug_report.yml\` and
+    \`ISSUE_TEMPLATE/feature_request.yml\` as issue forms, and
+    \`ISSUE_TEMPLATE/config.yml\` with a link to the security policy.
+  - \`pull_request_template.md\`: what changed, why, and how it was tested.
+  Run a secret scan (gitleaks) first. Open a pull request when the default
+  branch has a ruleset, else push to it. Then check that every file exists
+  on the default branch.`;
+}

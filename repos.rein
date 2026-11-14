@@ -1,0 +1,47 @@
+interface Gaps {
+  /** Each public repository with gaps, as `repo: gap, gap`, separated by
+   * `;`, or `-` when there is none. */
+  list: string;
+  /** Does every public repository already meet the checklist? */
+  none: boolean;
+  /** Does a public repository have no license? */
+  license_missing: boolean;
+}
+
+/**
+ * Check every public repository of the organization against the public
+ * repository checklist, and fix the gaps the agent can fix from facts.
+ */
+export default async function repos(
+  /** The login of the GitHub organization. */
+  org: string,
+) {
+  /** The gaps of the public repositories. */
+  const gaps: Gaps = await request(`List the public repositories of ${org}
+  that are not forks and not archived:
+  \`gh repo list ${org} --visibility public --no-archived --source\`. For
+  each one, check:
+  - It has a description, and a homepage when it has a website.
+  - It has 3 or more topics.
+  - It has a README and a license file.
+  - Private vulnerability reporting is on
+    (\`gh api repos/<repo>/private-vulnerability-reporting\`).
+  Change nothing yet.`);
+
+  if (gaps.none) {
+    return `Every public repository of ${org} meets the checklist.`;
+  }
+
+  if (gaps.license_missing) {
+    return askUser(question=`Some public repositories of ${org} have no
+    license: ${gaps.list}. Which license do they get? Without one, nobody
+    may legally reuse the code.`);
+  }
+
+  return `Fix these gaps in the public repositories of ${org}:
+  ${gaps.list}. Write each description and the topics from the repository
+  code and README. Turn on private vulnerability reporting with
+  \`gh api -X PUT repos/<repo>/private-vulnerability-reporting\`. Add a
+  missing README through a pull request when the default branch has a
+  ruleset, else push it. Then check every repository again.`;
+}

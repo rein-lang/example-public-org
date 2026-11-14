@@ -1,0 +1,13 @@
+{
+  "name": "public-org",
+  "version": "0.1.0",
+  "description": "Set up a public GitHub organization: profile, .github repository, security baseline, public repositories and the web UI steps.",
+  "license": "MIT",
+  "private": true,
+  "repository": "github:rein-lang/rein-public-org",
+  "keywords": ["rein", "github", "organization", "open-source"],
+  "files": ["**/*.rein", "README.md", "rein.json"],
+  "engines": {
+    "rein": "^0.1.0"
+  }
+}

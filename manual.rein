@@ -1,0 +1,41 @@
+interface Input {
+  /** The login of the GitHub organization. */
+  org: string;
+  /** Open `https://github.com/<org>`. Does it show a custom avatar, not the
+   * default pattern? */
+  avatar: boolean;
+  /** Does the organization page pin its main public repositories? */
+  pinned: boolean;
+  /** Run `gh api orgs/<org> --jq .is_verified`. Is a domain verified for
+   * the organization, or does it have no website? */
+  domain: boolean;
+  /** Does the organization require two-factor authentication? Check
+   * `gh api orgs/<org> --jq .two_factor_requirement_enabled`. */
+  two_factor: boolean;
+}
+
+/**
+ * Report the setup steps that only an owner can do in the GitHub web UI:
+ * the avatar, the pinned repositories, the verified domain and the
+ * two-factor requirement.
+ */
+export default function manual(
+  { org, avatar, pinned, domain, two_factor }: Input,
+) {
+  if (avatar && pinned && domain && two_factor) {
+    return `The public setup of ${org} is complete. Report what this run
+    changed.`;
+  }
+
+  return `The setup of ${org} that the agent can do is complete. Report what
+  this run changed. Then list for the user only the web UI steps below
+  whose check failed, each with its link:
+  - Avatar: upload a logo at
+    https://github.com/organizations/${org}/settings/profile.
+  - Pinned repositories: "Customize pins" on https://github.com/${org}.
+  - Verified domain: add the domain and its DNS TXT record at
+    https://github.com/organizations/${org}/settings/domains.
+  - Two-factor requirement: turn it on at
+    https://github.com/organizations/${org}/settings/security. Members
+    without two-factor authentication are removed, so check them first.`;
+}
