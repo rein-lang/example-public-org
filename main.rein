@@ -1,3 +1,9 @@
+import { profile } from "./profile";
+import { community } from "./community";
+import { security } from "./security";
+import { repos } from "./repos";
+import { manual } from "./manual";
+
 interface Input {
   /** The login of the GitHub organization, like `rein-lang`. */
   org: string;
@@ -18,7 +24,7 @@ export default async function main({ org, owner }: Input) {
   }
 
   /** Is the profile of the organization set? */
-  const profile: boolean = await @./profile(org=org);
+  const profile: boolean = await profile(org=org);
 
   if (!profile) {
     return askUser(question=`The profile of ${org} is not set. Do I go on
@@ -26,7 +32,7 @@ export default async function main({ org, owner }: Input) {
   }
 
   /** Does `<org>/.github` have the profile and all health files? */
-  const community: boolean = await @./community(org=org);
+  const community: boolean = await community(org=org);
 
   if (!community) {
     return askUser(question=`The .github repository of ${org} is not
@@ -34,7 +40,7 @@ export default async function main({ org, owner }: Input) {
   }
 
   /** Did the security step finish (applied, or declined by the user)? */
-  const security: boolean = await @./security(org=org);
+  const security: boolean = await security(org=org);
 
   if (!security) {
     return askUser(question=`The security settings of ${org} did not
@@ -42,12 +48,12 @@ export default async function main({ org, owner }: Input) {
   }
 
   /** Does every public repository meet the checklist? */
-  const repos: boolean = await @./repos(org=org);
+  const repos: boolean = await repos(org=org);
 
   if (!repos) {
     return askUser(question=`Some public repositories of ${org} still have
     gaps. Do I go on with the web UI steps, or stop?`);
   }
 
-  return @./manual(org=org);
+  return manual(org=org);
 }
