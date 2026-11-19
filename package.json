@@ -1,6 +1,6 @@
 {
   "name": "example-public-org",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Example Rein program: set up a public GitHub organization: profile, .github repository, security baseline, public repositories and the web UI steps.",
   "license": "MIT",
   "private": true,
