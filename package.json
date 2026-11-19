@@ -1,6 +1,6 @@
 {
   "name": "example-public-org",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Example Rein program: set up a public GitHub organization: profile, .github repository, security baseline, public repositories and the web UI steps.",
   "license": "MIT",
   "private": true,
@@ -8,6 +8,6 @@
   "keywords": ["rein", "example", "github", "organization", "open-source"],
   "files": ["**/*.rein", "README.md", "rein.json"],
   "engines": {
-    "rein": "^0.1.0"
+    "rein": "^0.1.2"
   }
 }
